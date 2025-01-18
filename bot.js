@@ -1,7 +1,7 @@
 global.ReadableStream = require('web-streams-polyfill/ponyfill').ReadableStream;
 // Import required libraries
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder } = require('discord.js');
-const Canvas = require('canvas');
+const { createCanvas, loadImage } = require('canvas');
 const axios = require('axios');
 const express = require('express');
 require('dotenv').config();
@@ -19,6 +19,16 @@ const TARGET_CHANNEL_ID = '1313095157477802034'; // Target channel ID
 client.once('ready', () => {
     console.log(`Bot is online as ${client.user.tag}`);
 });
+
+async function downloadImage(url) {
+    try {
+        const response = await axios.get(url, { responseType: 'arraybuffer' });
+        return response.data;
+    } catch (error) {
+        console.error('Error downloading image:', error.message);
+        throw new Error('Failed to download template image.');
+    }
+}
 
 client.on('messageCreate', async (message) => {
     if (message.content.toLowerCase() === COMMAND_TRIGGER) {
@@ -95,44 +105,51 @@ client.on('interactionCreate', async (interaction) => {
         const avatarUrl = interaction.user.displayAvatarURL({ format: 'png', size: 256 });
         const createdAt = new Date().toLocaleDateString('id-ID');
 
-        // Generate ID Card
-        const canvas = Canvas.createCanvas(1920, 1080);
-        const ctx = canvas.getContext('2d');
+        try {
+            const templateBuffer = await downloadImage(TEMPLATE_URL);
+            const avatarBuffer = await downloadImage(avatarUrl);
 
-        // Load template
-        const template = await Canvas.loadImage(TEMPLATE_URL);
-        ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
+            const canvas = createCanvas(1920, 1080);
+            const ctx = canvas.getContext('2d');
 
-        // Load and crop avatar
-        const avatar = await Canvas.loadImage(avatarUrl);
-        ctx.beginPath();
-        ctx.rect(1450, 300, 300, 450); // Define crop area
-        ctx.closePath();
-        ctx.clip();
-        ctx.drawImage(avatar, 1450, 300, 300, 450);
+            // Load template
+            const template = await loadImage(templateBuffer);
+            ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
-        // Add text
-        ctx.font = '40px Arial';
-        ctx.fillStyle = '#FCF4D2';
-        ctx.fillText(`Nomor KTP: ${userId}`, 100, 200);
-        ctx.fillText(`Nama: ${nama}`, 100, 300);
-        ctx.fillText(`Jenis Kelamin: ${gender}`, 100, 400);
-        ctx.fillText(`Domisili: ${domisili}`, 100, 500);
-        ctx.fillText(`Agama: ${agama}`, 100, 600);
-        ctx.fillText(`Hobi: ${hobi}`, 100, 700);
-        ctx.fillText(`Tanggal Pembuatan: ${createdAt}`, 1450, 800);
+            // Load and crop avatar
+            const avatar = await loadImage(avatarBuffer);
+            ctx.beginPath();
+            ctx.rect(1450, 300, 300, 450); // Define crop area
+            ctx.closePath();
+            ctx.clip();
+            ctx.drawImage(avatar, 1450, 300, 300, 450);
 
-        // Convert to buffer and send
-        const attachment = new AttachmentBuilder(canvas.toBuffer(), { name: 'ktp.png' });
+            // Add text
+            ctx.font = '40px Arial';
+            ctx.fillStyle = '#FCF4D2';
+            ctx.fillText(`Nomor KTP: ${userId}`, 100, 200);
+            ctx.fillText(`Nama: ${nama}`, 100, 300);
+            ctx.fillText(`Jenis Kelamin: ${gender}`, 100, 400);
+            ctx.fillText(`Domisili: ${domisili}`, 100, 500);
+            ctx.fillText(`Agama: ${agama}`, 100, 600);
+            ctx.fillText(`Hobi: ${hobi}`, 100, 700);
+            ctx.fillText(`Tanggal Pembuatan: ${createdAt}`, 1450, 800);
 
-        // Send to target channel
-        const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
-        if (targetChannel) {
-            await targetChannel.send({ content: `KTP virtual untuk ${interaction.user.tag}`, files: [attachment] });
+            // Convert to buffer and send
+            const attachment = new AttachmentBuilder(canvas.toBuffer(), { name: 'ktp.png' });
+
+            // Send to target channel
+            const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
+            if (targetChannel) {
+                await targetChannel.send({ content: `KTP virtual untuk ${interaction.user.tag}`, files: [attachment] });
+            }
+
+            // Acknowledge interaction
+            await interaction.reply({ content: 'KTP virtual Anda telah diproses dan dikirim ke channel tujuan!' });
+        } catch (error) {
+            console.error('Error creating ID card:', error);
+            await interaction.reply({ content: 'Terjadi kesalahan saat membuat KTP virtual.', ephemeral: true });
         }
-
-        // Acknowledge interaction
-        await interaction.reply({ content: 'KTP virtual Anda telah diproses dan dikirim ke channel tujuan!' });
     }
 });
 
