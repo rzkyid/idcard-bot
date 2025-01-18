@@ -1,0 +1,25 @@
+{
+  "name": "discord-id-card-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot to create virtual ID cards for users based on form inputs.",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "@discordjs/builders": "^1.6.0",
+    "@discordjs/rest": "^1.6.0",
+    "canvas": "^2.11.2",
+    "discord-api-types": "^0.37.44",
+    "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "axios": "^1.4.0",
+    "web-streams-polyfill": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=16.9.0"
+  },
+  "author": "",
+  "license": "ISC"
+}
