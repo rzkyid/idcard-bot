@@ -22,7 +22,8 @@ client.once('ready', () => {
 async function downloadImage(url) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
-        return `data:image/png;base64,${Buffer.from(response.data).toString('base64')}`;
+        const buffer = Buffer.from(response.data, 'binary');
+        return `data:image/png;base64,${buffer.toString('base64')}`;
     } catch (error) {
         console.error('Error downloading image:', error.message);
         throw new Error('Failed to download image.');
