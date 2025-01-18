@@ -22,10 +22,10 @@ client.once('ready', () => {
 async function downloadImage(url) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
-        return response.data;
+        return `data:image/png;base64,${Buffer.from(response.data).toString('base64')}`;
     } catch (error) {
         console.error('Error downloading image:', error.message);
-        throw new Error('Failed to download template image.');
+        throw new Error('Failed to download image.');
     }
 }
 
@@ -105,18 +105,17 @@ client.on('interactionCreate', async (interaction) => {
         const createdAt = new Date().toLocaleDateString('id-ID');
 
         try {
-            const templateBuffer = await downloadImage(TEMPLATE_URL);
-            const avatarBuffer = await downloadImage(avatarUrl);
+            const templateDataUrl = await downloadImage(TEMPLATE_URL);
+            const avatarDataUrl = await downloadImage(avatarUrl);
 
             const canvas = createCanvas(1920, 1080);
             const ctx = canvas.getContext('2d');
 
-            // Load template
-            const template = await loadImage(templateBuffer);
+            // Load images using data URLs
+            const template = await loadImage(templateDataUrl);
             ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
-            // Load and crop avatar
-            const avatar = await loadImage(avatarBuffer);
+            const avatar = await loadImage(avatarDataUrl);
             ctx.beginPath();
             ctx.rect(1450, 300, 300, 450); // Define crop area
             ctx.closePath();
