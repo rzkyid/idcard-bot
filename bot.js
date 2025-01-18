@@ -1,4 +1,3 @@
-global.ReadableStream = require('web-streams-polyfill/ponyfill').ReadableStream;
 // Import required libraries
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder } = require('discord.js');
 const { createCanvas, loadImage } = require('canvas');
