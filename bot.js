@@ -119,10 +119,6 @@ client.on('interactionCreate', async (interaction) => {
             ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
             const avatar = await loadImage(avatarBuffer);
-            ctx.beginPath();
-            ctx.rect(1450, 300, 300, 450); // Define crop area
-            ctx.closePath();
-            ctx.clip();
             ctx.drawImage(avatar, 1450, 300, 300, 450);
 
             // Add text
@@ -160,4 +156,3 @@ app.listen(PORT, () => {
 });
 
 client.login(process.env.TOKEN);
-
