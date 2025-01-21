@@ -127,7 +127,7 @@ client.on('interactionCreate', async (interaction) => {
             ctx.drawImage(avatar, 1450, 300, 300, 300);
 
             // Add text
-            ctx.font = '80px Rye';
+            ctx.font = '70px Rye'; // Preserve font style and size from your earlier version
             ctx.fillStyle = '#FCF4D2';
             ctx.fillText(`Nomor KTP: ${userId}`, 100, 200);
             ctx.fillText(`Nama: ${nama}`, 100, 300);
@@ -137,8 +137,8 @@ client.on('interactionCreate', async (interaction) => {
             ctx.fillText(`Hobi: ${hobi}`, 100, 700);
             ctx.fillText(`Tanggal Pembuatan: ${createdAt}`, 100, 800);
 
-            // Convert to buffer and send
-            const attachment = new AttachmentBuilder(canvas.toBuffer(), { name: 'ktp.png' });
+          // Convert to buffer and send
+            const attachment = new AttachmentBuilder(canvas.toBuffer('image/png'), { name: 'idcard.png' });
 
             // Send to target channel
             const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
@@ -165,3 +165,4 @@ app.listen(PORT, () => {
 });
 
 client.login(process.env.TOKEN);
+
