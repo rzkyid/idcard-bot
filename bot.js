@@ -132,7 +132,7 @@ client.on('interactionCreate', async (interaction) => {
             ctx.drawImage(avatar, 1450, 300, 300, 300); // Ensure avatar maintains 1:1 ratio
 
             // Add text using drawText
-            drawText(ctx, `Nomor KTP: ${userId}`, 'Rye', 40, '#FCF4D2', 100, 200);
+            drawText(ctx, `Nomor KTP: ${userId}`, 'Arial', 40, '#FCF4D2', 100, 200);
             drawText(ctx, `Nama: ${nama}`, 'Rye', 40, '#FCF4D2', 100, 300);
             drawText(ctx, `Jenis Kelamin: ${gender}`, 'Rye', 40, '#FCF4D2', 100, 400);
             drawText(ctx, `Domisili: ${domisili}`, 'Rye', 40, '#FCF4D2', 100, 500);
