@@ -1,10 +1,23 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder } = require('discord.js');
 const { createCanvas, loadImage, registerFont } = require('canvas');
 const axios = require('axios');
+const express = require('express');
 require('dotenv').config();
 
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
+});
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Express routing
+app.get('/', (req, res) => {
+    res.send('Bot is running!');
+});
+
+app.listen(PORT, () => {
+    console.log(`Express server running on port ${PORT}`);
 });
 
 const TEMPLATE_URL = 'https://i.imgur.com/rU6Gjvj.png'; // URL template gambar ID Card
