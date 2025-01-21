@@ -95,6 +95,9 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     if (interaction.isModalSubmit() && interaction.customId === 'ktp_form') {
+        // Respond immediately to avoid timeout
+        await interaction.reply({ content: 'KTP virtual Anda sedang diproses...', ephemeral: true });
+
         const nama = interaction.fields.getTextInputValue('nama');
         const gender = interaction.fields.getTextInputValue('gender');
         const domisili = interaction.fields.getTextInputValue('domisili');
@@ -141,12 +144,8 @@ client.on('interactionCreate', async (interaction) => {
             if (targetChannel) {
                 await targetChannel.send({ content: `KTP virtual untuk ${interaction.user.tag}`, files: [attachment] });
             }
-
-            // Acknowledge interaction
-            await interaction.reply({ content: 'KTP virtual Anda telah diproses dan dikirim ke channel tujuan!' });
         } catch (error) {
             console.error('Error creating ID card:', error);
-            await interaction.reply({ content: 'Terjadi kesalahan saat membuat KTP virtual.', ephemeral: true });
         }
     }
 });
