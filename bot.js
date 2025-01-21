@@ -19,7 +19,7 @@ const TARGET_CHANNEL_ID = '1313095157477802034'; // Target channel ID
 registerFont('./fonts/Rye-Regular.ttf', { family: 'Rye' });
 
 client.once('ready', () => {
-console.log(Bot is online as ${client.user.tag});
+console.log(`Bot is online as ${client.user.tag}`);
 });
 
 async function downloadImage(url) {
@@ -127,13 +127,13 @@ if (interaction.isModalSubmit() && interaction.customId === 'ktp_form') {
         // Add text
         ctx.font = '80px Rye';
         ctx.fillStyle = '#FCF4D2';
-        ctx.fillText(Nomor KTP: ${userId}, 100, 200);
-        ctx.fillText(Nama: ${nama}, 100, 300);
-        ctx.fillText(Jenis Kelamin: ${gender}, 100, 400);
-        ctx.fillText(Domisili: ${domisili}, 100, 500);
-        ctx.fillText(Agama: ${agama}, 100, 600);
-        ctx.fillText(Hobi: ${hobi}, 100, 700);
-        ctx.fillText(Tanggal Pembuatan: ${createdAt}, 1450, 800);
+        ctx.fillText(`Nomor KTP: ${userId}`, 100, 200);
+        ctx.fillText(`Nama: ${nama}`, 100, 300);
+        ctx.fillText(`Jenis Kelamin: ${gender}`, 100, 400);
+        ctx.fillText(`Domisili: ${domisili}`, 100, 500);
+        ctx.fillText(`Agama: ${agama}`, 100, 600);
+        ctx.fillText(`Hobi: ${hobi}`, 100, 700);
+        ctx.fillText(`Tanggal Pembuatan: ${createdAt}`, 1450, 800);
 
         // Convert to buffer and send
         const attachment = new AttachmentBuilder(canvas.toBuffer('image/png'), { name: 'idcard.png' });
@@ -141,7 +141,7 @@ if (interaction.isModalSubmit() && interaction.customId === 'ktp_form') {
         // Send to target channel
         const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
         if (targetChannel) {
-            await targetChannel.send({ content: KTP virtual untuk ${interaction.user.tag}, files: [attachment] });
+            await targetChannel.send({ content: `KTP virtual untuk ${interaction.user.tag}`, files: [attachment] });
         }
     } catch (error) {
         console.error('Error creating ID card:', error);
@@ -155,7 +155,7 @@ res.send('Bot is running!');
 });
 
 app.listen(PORT, () => {
-console.log(Express server running on port ${PORT});
+console.log(`Express server running on port ${PORT}`);
 });
 
 client.login(process.env.TOKEN);
