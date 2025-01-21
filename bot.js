@@ -125,7 +125,7 @@ if (interaction.isModalSubmit() && interaction.customId === 'ktp_form') {
         ctx.drawImage(avatar, 1450, 300, 300, 300); // Ensure avatar maintains 1:1 ratio
 
         // Add text
-        ctx.font = '80px Rye';
+        ctx.font = '80px Arial';
         ctx.fillStyle = '#FCF4D2';
         ctx.fillText(`Nomor KTP: ${userId}`, 100, 200);
         ctx.fillText(`Nama: ${nama}`, 100, 300);
