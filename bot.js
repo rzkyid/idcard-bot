@@ -1,34 +1,24 @@
-// Tambahkan fungsi drawText
-function drawText(ctx, text, font, fontSize, color, x, y) {
-    ctx.font = `${fontSize}px ${font}`;
-    ctx.fillStyle = color;
-    ctx.fillText(text, x, y);
-}
-
-// Import required libraries
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder } = require('discord.js');
 const { createCanvas, loadImage, registerFont } = require('canvas');
 const axios = require('axios');
-const express = require('express');
 require('dotenv').config();
 
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
 });
-const app = express();
-const PORT = process.env.PORT || 3000;
 
 const TEMPLATE_URL = 'https://i.imgur.com/rU6Gjvj.png'; // URL template gambar ID Card
 const COMMAND_TRIGGER = 'rwktp';
 const TARGET_CHANNEL_ID = '1313095157477802034'; // Target channel ID
 
-// Register custom font
+// Register custom font Rye
 registerFont('./fonts/Rye-Regular.ttf', { family: 'Rye' });
 
 client.once('ready', () => {
     console.log(`Bot is online as ${client.user.tag}`);
 });
 
+// Function to download images
 async function downloadImage(url) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
@@ -37,6 +27,23 @@ async function downloadImage(url) {
         console.error('Error downloading image:', error.message);
         throw new Error('Failed to download image.');
     }
+}
+
+// Function to add text with shadow
+function addTextWithShadow(ctx, text, font, color, x, y) {
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+
+    // Set shadow properties
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+    ctx.shadowOffsetX = 4;
+    ctx.shadowOffsetY = 4;
+    ctx.shadowBlur = 6;
+
+    // Draw the text with shadow
+    ctx.fillText(text, x, y);
 }
 
 client.on('messageCreate', async (message) => {
@@ -105,7 +112,6 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     if (interaction.isModalSubmit() && interaction.customId === 'ktp_form') {
-        // Respond immediately to avoid timeout
         await interaction.reply({ content: 'KTP virtual Anda sedang diproses...', ephemeral: true });
 
         const nama = interaction.fields.getTextInputValue('nama');
@@ -124,26 +130,26 @@ client.on('interactionCreate', async (interaction) => {
             const canvas = createCanvas(1920, 1080);
             const ctx = canvas.getContext('2d');
 
-            // Load images directly from buffer
+            // Load template image
             const template = await loadImage(templateBuffer);
             ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
+            // Load and draw avatar
             const avatar = await loadImage(avatarBuffer);
-            ctx.drawImage(avatar, 1450, 300, 300, 300); // Ensure avatar maintains 1:1 ratio
+            ctx.drawImage(avatar, 1450, 300, 300, 300); // Position avatar on template
 
-            // Add text using drawText
-            drawText(ctx, `Nomor KTP: ${userId}`, 'Arial', 40, '#FCF4D2', 100, 200);
-            drawText(ctx, `Nama: ${nama}`, 'Rye', 40, '#FCF4D2', 100, 300);
-            drawText(ctx, `Jenis Kelamin: ${gender}`, 'Rye', 40, '#FCF4D2', 100, 400);
-            drawText(ctx, `Domisili: ${domisili}`, 'Rye', 40, '#FCF4D2', 100, 500);
-            drawText(ctx, `Agama: ${agama}`, 'Rye', 40, '#FCF4D2', 100, 600);
-            drawText(ctx, `Hobi: ${hobi}`, 'Rye', 40, '#FCF4D2', 100, 700);
-            drawText(ctx, `Tanggal Pembuatan: ${createdAt}`, 'Rye', 30, '#FCF4D2', 1450, 800);
+            // Add text with shadow
+            const fontMain = '80px "Rye"';
+            addTextWithShadow(ctx, `Nomor KTP: ${userId}`, fontMain, '#FCF4D2', 100, 200);
+            addTextWithShadow(ctx, `Nama: ${nama}`, fontMain, '#FCF4D2', 100, 300);
+            addTextWithShadow(ctx, `Jenis Kelamin: ${gender}`, fontMain, '#FCF4D2', 100, 400);
+            addTextWithShadow(ctx, `Domisili: ${domisili}`, fontMain, '#FCF4D2', 100, 500);
+            addTextWithShadow(ctx, `Agama: ${agama}`, fontMain, '#FCF4D2', 100, 600);
+            addTextWithShadow(ctx, `Hobi: ${hobi}`, fontMain, '#FCF4D2', 100, 700);
+            addTextWithShadow(ctx, `Tanggal Pembuatan: ${createdAt}`, fontMain, '#FCF4D2', 1450, 800);
 
-            // Convert to buffer and send
             const attachment = new AttachmentBuilder(canvas.toBuffer('image/png'), { name: 'idcard.png' });
 
-            // Send to target channel
             const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
             if (targetChannel) {
                 await targetChannel.send({ content: `KTP virtual untuk ${interaction.user.tag}`, files: [attachment] });
@@ -152,15 +158,6 @@ client.on('interactionCreate', async (interaction) => {
             console.error('Error creating ID card:', error);
         }
     }
-});
-
-// Express routing
-app.get('/', (req, res) => {
-    res.send('Bot is running!');
-});
-
-app.listen(PORT, () => {
-    console.log(`Express server running on port ${PORT}`);
 });
 
 client.login(process.env.TOKEN);
