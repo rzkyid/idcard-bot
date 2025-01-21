@@ -22,8 +22,7 @@ client.once('ready', () => {
 async function downloadImage(url) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
-        const buffer = Buffer.from(response.data, 'binary');
-        return `data:image/png;base64,${buffer.toString('base64')}`;
+        return Buffer.from(response.data, 'binary');
     } catch (error) {
         console.error('Error downloading image:', error.message);
         throw new Error('Failed to download image.');
@@ -102,21 +101,21 @@ client.on('interactionCreate', async (interaction) => {
         const agama = interaction.fields.getTextInputValue('agama');
         const hobi = interaction.fields.getTextInputValue('hobi');
         const userId = interaction.user.id;
-        const avatarUrl = interaction.user.displayAvatarURL({ format: 'png', size: 256 });
+        const avatarUrl = interaction.user.displayAvatarURL({ size: 256, extension: 'png' });
         const createdAt = new Date().toLocaleDateString('id-ID');
 
         try {
-            const templateDataUrl = await downloadImage(TEMPLATE_URL);
-            const avatarDataUrl = await downloadImage(avatarUrl);
+            const templateBuffer = await downloadImage(TEMPLATE_URL);
+            const avatarBuffer = await downloadImage(avatarUrl);
 
             const canvas = createCanvas(1920, 1080);
             const ctx = canvas.getContext('2d');
 
-            // Load images using data URLs
-            const template = await loadImage(templateDataUrl);
+            // Load images directly from buffer
+            const template = await loadImage(templateBuffer);
             ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
-            const avatar = await loadImage(avatarDataUrl);
+            const avatar = await loadImage(avatarBuffer);
             ctx.beginPath();
             ctx.rect(1450, 300, 300, 450); // Define crop area
             ctx.closePath();
@@ -135,7 +134,7 @@ client.on('interactionCreate', async (interaction) => {
             ctx.fillText(`Tanggal Pembuatan: ${createdAt}`, 1450, 800);
 
             // Convert to buffer and send
-            const attachment = new AttachmentBuilder(canvas.toBuffer(), { name: 'ktp.png' });
+            const attachment = new AttachmentBuilder(canvas.toBuffer('image/png'), { name: 'idcard.png' });
 
             // Send to target channel
             const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
@@ -162,3 +161,4 @@ app.listen(PORT, () => {
 });
 
 client.login(process.env.TOKEN);
+
