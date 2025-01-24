@@ -11,21 +11,20 @@ const client = new Client({
 
 // Inisialisasi Express App untuk Server
 const app = express();
-const PORT = process.env.PORT || 3000; // Gunakan PORT dari environment atau default 3000
+const PORT = process.env.PORT || 3000;
 
 // Express Routing
 app.get('/', (req, res) => {
-    res.send('Bot is running!'); // Tampilan sederhana saat mengakses root
+    res.send('Bot is running!');
 });
 
-// Start server untuk monitoring
 app.listen(PORT, () => {
     console.log(`Express server running on port ${PORT}`);
 });
 
 // Constants
-const TEMPLATE_URL = 'https://i.imgur.com/rU6Gjvj.png'; // Template ID Card
-const COMMAND_TRIGGER = 'rwktp'; // Trigger command
+const TEMPLATE_URL = 'https://i.imgur.com/7tUb9dL.png'; // Template ID Card (960 x 540 px)
+const COMMAND_TRIGGER = 'rwktp';
 const TARGET_CHANNEL_ID = '1313095157477802034'; // Target channel ID
 
 // Register custom font Rye
@@ -55,9 +54,9 @@ function addTextWithShadow(ctx, text, font, color, x, y) {
 
     // Set shadow properties
     ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-    ctx.shadowOffsetX = 4;
-    ctx.shadowOffsetY = 4;
-    ctx.shadowBlur = 6;
+    ctx.shadowOffsetX = 3;
+    ctx.shadowOffsetY = 3;
+    ctx.shadowBlur = 4;
 
     // Draw text
     ctx.fillText(text, x, y);
@@ -144,26 +143,26 @@ client.on('interactionCreate', async (interaction) => {
             const templateBuffer = await downloadImage(TEMPLATE_URL);
             const avatarBuffer = await downloadImage(avatarUrl);
 
-            const canvas = createCanvas(1920, 1080);
+            const canvas = createCanvas(960, 540);
             const ctx = canvas.getContext('2d');
 
             // Load template image
             const template = await loadImage(templateBuffer);
             ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
-            // Add text to canvas first
-            const fontMain = '80px "Rye"';
-            addTextWithShadow(ctx, `Nomor KTP: ${userId}`, fontMain, '#FCF4D2', 100, 200);
-            addTextWithShadow(ctx, `Nama: ${nama}`, fontMain, '#FCF4D2', 100, 300);
-            addTextWithShadow(ctx, `Jenis Kelamin: ${gender}`, fontMain, '#FCF4D2', 100, 400);
-            addTextWithShadow(ctx, `Domisili: ${domisili}`, fontMain, '#FCF4D2', 100, 500);
-            addTextWithShadow(ctx, `Agama: ${agama}`, fontMain, '#FCF4D2', 100, 600);
-            addTextWithShadow(ctx, `Hobi: ${hobi}`, fontMain, '#FCF4D2', 100, 700);
-            addTextWithShadow(ctx, `Tanggal Pembuatan: ${createdAt}`, fontMain, '#FCF4D2', 1450, 800);
+            // Add text to canvas
+            const fontMain = '28px "Rye"';
+            addTextWithShadow(ctx, `Nomor KTP: ${userId}`, fontMain, '#FCF4D2', 50, 50);
+            addTextWithShadow(ctx, `Nama: ${nama}`, fontMain, '#FCF4D2', 50, 100);
+            addTextWithShadow(ctx, `Jenis Kelamin: ${gender}`, fontMain, '#FCF4D2', 50, 150);
+            addTextWithShadow(ctx, `Domisili: ${domisili}`, fontMain, '#FCF4D2', 50, 200);
+            addTextWithShadow(ctx, `Agama: ${agama}`, fontMain, '#FCF4D2', 50, 250);
+            addTextWithShadow(ctx, `Hobi: ${hobi}`, fontMain, '#FCF4D2', 50, 300);
+            addTextWithShadow(ctx, `Tanggal Pembuatan: ${createdAt}`, fontMain, '#FCF4D2', 500, 450);
 
-            // Load and draw avatar after the text
+            // Load and draw avatar
             const avatar = await loadImage(avatarBuffer);
-            ctx.drawImage(avatar, 1450, 300, 300, 300); // Position avatar on template
+            ctx.drawImage(avatar, 700, 150, 150, 150); // Position avatar on template
 
             // Generate and send the image
             const attachment = new AttachmentBuilder(canvas.toBuffer('image/png'), { name: 'idcard.png' });
