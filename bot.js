@@ -9,11 +9,10 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
 });
 
-// Inisialisasi Express App untuk Server
+// Inisialisasi Express App
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Express Routing
 app.get('/', (req, res) => {
     res.send('Bot is running!');
 });
@@ -23,18 +22,18 @@ app.listen(PORT, () => {
 });
 
 // Constants
-const TEMPLATE_URL = 'https://i.imgur.com/7tUb9dL.png'; // Template ID Card (960 x 540 px)
+const TEMPLATE_URL = 'https://i.imgur.com/rU6Gjvj.png'; // Template ID Card (960 x 540 px)
 const COMMAND_TRIGGER = 'rwktp';
-const TARGET_CHANNEL_ID = '1313095157477802034'; // Target channel ID
+const TARGET_CHANNEL_ID = '1313095157477802034';
 
-// Register custom font Rye
+// Register font Rye
 registerFont('./fonts/Rye-Regular.ttf', { family: 'Rye' });
 
 client.once('ready', () => {
     console.log(`Bot is online as ${client.user.tag}`);
 });
 
-// Function to download images
+// Download image function
 async function downloadImage(url) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
@@ -45,11 +44,14 @@ async function downloadImage(url) {
     }
 }
 
-// Function to add text with shadow
-function addTextWithShadow(ctx, text, font, color, x, y) {
+// Function to draw text with font, color, and shadow explicitly
+function drawText(ctx, text, x, y, options = {}) {
+    const { font = '28px "Rye"', color = '#FCF4D2', align = 'left' } = options;
+
+    ctx.save(); // Save current state
     ctx.font = font;
     ctx.fillStyle = color;
-    ctx.textAlign = 'left';
+    ctx.textAlign = align;
     ctx.textBaseline = 'middle';
 
     // Set shadow properties
@@ -60,6 +62,7 @@ function addTextWithShadow(ctx, text, font, color, x, y) {
 
     // Draw text
     ctx.fillText(text, x, y);
+    ctx.restore(); // Restore state
 }
 
 client.on('messageCreate', async (message) => {
@@ -150,19 +153,18 @@ client.on('interactionCreate', async (interaction) => {
             const template = await loadImage(templateBuffer);
             ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
-            // Add text to canvas
-            const fontMain = '28px "Rye"';
-            addTextWithShadow(ctx, `Nomor KTP: ${userId}`, fontMain, '#FCF4D2', 50, 50);
-            addTextWithShadow(ctx, `Nama: ${nama}`, fontMain, '#FCF4D2', 50, 100);
-            addTextWithShadow(ctx, `Jenis Kelamin: ${gender}`, fontMain, '#FCF4D2', 50, 150);
-            addTextWithShadow(ctx, `Domisili: ${domisili}`, fontMain, '#FCF4D2', 50, 200);
-            addTextWithShadow(ctx, `Agama: ${agama}`, fontMain, '#FCF4D2', 50, 250);
-            addTextWithShadow(ctx, `Hobi: ${hobi}`, fontMain, '#FCF4D2', 50, 300);
-            addTextWithShadow(ctx, `Tanggal Pembuatan: ${createdAt}`, fontMain, '#FCF4D2', 500, 450);
+            // Draw text
+            drawText(ctx, `Nomor KTP: ${userId}`, 50, 50);
+            drawText(ctx, `Nama: ${nama}`, 50, 100);
+            drawText(ctx, `Jenis Kelamin: ${gender}`, 50, 150);
+            drawText(ctx, `Domisili: ${domisili}`, 50, 200);
+            drawText(ctx, `Agama: ${agama}`, 50, 250);
+            drawText(ctx, `Hobi: ${hobi}`, 50, 300);
+            drawText(ctx, `Tanggal Pembuatan: ${createdAt}`, 500, 450);
 
             // Load and draw avatar
             const avatar = await loadImage(avatarBuffer);
-            ctx.drawImage(avatar, 700, 150, 150, 150); // Position avatar on template
+            ctx.drawImage(avatar, 700, 150, 150, 150);
 
             // Generate and send the image
             const attachment = new AttachmentBuilder(canvas.toBuffer('image/png'), { name: 'idcard.png' });
@@ -177,5 +179,4 @@ client.on('interactionCreate', async (interaction) => {
     }
 });
 
-// Login ke bot Discord
 client.login(process.env.TOKEN);
