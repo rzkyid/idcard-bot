@@ -4,24 +4,28 @@ const axios = require('axios');
 const express = require('express');
 require('dotenv').config();
 
+// Inisialisasi Discord Client
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
 });
 
+// Inisialisasi Express App untuk Server
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // Gunakan PORT dari environment atau default 3000
 
-// Express routing
+// Express Routing
 app.get('/', (req, res) => {
-    res.send('Bot is running!');
+    res.send('Bot is running!'); // Tampilan sederhana saat mengakses root
 });
 
+// Start server untuk monitoring
 app.listen(PORT, () => {
     console.log(`Express server running on port ${PORT}`);
 });
 
-const TEMPLATE_URL = 'https://i.imgur.com/rU6Gjvj.png'; // URL template gambar ID Card
-const COMMAND_TRIGGER = 'rwktp';
+// Constants
+const TEMPLATE_URL = 'https://i.imgur.com/rU6Gjvj.png'; // Template ID Card
+const COMMAND_TRIGGER = 'rwktp'; // Trigger command
 const TARGET_CHANNEL_ID = '1313095157477802034'; // Target channel ID
 
 // Register custom font Rye
@@ -55,7 +59,7 @@ function addTextWithShadow(ctx, text, font, color, x, y) {
     ctx.shadowOffsetY = 4;
     ctx.shadowBlur = 6;
 
-    // Draw the text with shadow
+    // Draw text
     ctx.fillText(text, x, y);
 }
 
@@ -136,42 +140,43 @@ client.on('interactionCreate', async (interaction) => {
         const avatarUrl = interaction.user.displayAvatarURL({ size: 256, extension: 'png' });
         const createdAt = new Date().toLocaleDateString('id-ID');
 
-       try {
-    const templateBuffer = await downloadImage(TEMPLATE_URL);
-    const avatarBuffer = await downloadImage(avatarUrl);
+        try {
+            const templateBuffer = await downloadImage(TEMPLATE_URL);
+            const avatarBuffer = await downloadImage(avatarUrl);
 
-    const canvas = createCanvas(1920, 1080);
-    const ctx = canvas.getContext('2d');
+            const canvas = createCanvas(1920, 1080);
+            const ctx = canvas.getContext('2d');
 
-    // Load template image
-    const template = await loadImage(templateBuffer);
-    ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
+            // Load template image
+            const template = await loadImage(templateBuffer);
+            ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
-    // Add text with shadow
-    const fontMain = '80px "Rye"';
-    addTextWithShadow(ctx, `Nomor KTP: ${userId}`, fontMain, '#FCF4D2', 100, 200);
-    addTextWithShadow(ctx, `Nama: ${nama}`, fontMain, '#FCF4D2', 100, 300);
-    addTextWithShadow(ctx, `Jenis Kelamin: ${gender}`, fontMain, '#FCF4D2', 100, 400);
-    addTextWithShadow(ctx, `Domisili: ${domisili}`, fontMain, '#FCF4D2', 100, 500);
-    addTextWithShadow(ctx, `Agama: ${agama}`, fontMain, '#FCF4D2', 100, 600);
-    addTextWithShadow(ctx, `Hobi: ${hobi}`, fontMain, '#FCF4D2', 100, 700);
-    addTextWithShadow(ctx, `Tanggal Pembuatan: ${createdAt}`, fontMain, '#FCF4D2', 1450, 800);
+            // Add text to canvas first
+            const fontMain = '80px "Rye"';
+            addTextWithShadow(ctx, `Nomor KTP: ${userId}`, fontMain, '#FCF4D2', 100, 200);
+            addTextWithShadow(ctx, `Nama: ${nama}`, fontMain, '#FCF4D2', 100, 300);
+            addTextWithShadow(ctx, `Jenis Kelamin: ${gender}`, fontMain, '#FCF4D2', 100, 400);
+            addTextWithShadow(ctx, `Domisili: ${domisili}`, fontMain, '#FCF4D2', 100, 500);
+            addTextWithShadow(ctx, `Agama: ${agama}`, fontMain, '#FCF4D2', 100, 600);
+            addTextWithShadow(ctx, `Hobi: ${hobi}`, fontMain, '#FCF4D2', 100, 700);
+            addTextWithShadow(ctx, `Tanggal Pembuatan: ${createdAt}`, fontMain, '#FCF4D2', 1450, 800);
 
-    // Load and draw avatar (draw this last to overlay on top of text, if needed)
-    const avatar = await loadImage(avatarBuffer);
-    ctx.drawImage(avatar, 1450, 300, 300, 300); // Position avatar on template
+            // Load and draw avatar after the text
+            const avatar = await loadImage(avatarBuffer);
+            ctx.drawImage(avatar, 1450, 300, 300, 300); // Position avatar on template
 
-    const attachment = new AttachmentBuilder(canvas.toBuffer('image/png'), { name: 'idcard.png' });
+            // Generate and send the image
+            const attachment = new AttachmentBuilder(canvas.toBuffer('image/png'), { name: 'idcard.png' });
 
-    const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
-    if (targetChannel) {
-        await targetChannel.send({ content: `KTP virtual untuk ${interaction.user.tag}`, files: [attachment] });
-    }
-} catch (error) {
-    console.error('Error creating ID card:', error);
-}
-
+            const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
+            if (targetChannel) {
+                await targetChannel.send({ content: `KTP virtual untuk ${interaction.user.tag}`, files: [attachment] });
+            }
+        } catch (error) {
+            console.error('Error creating ID card:', error);
+        }
     }
 });
 
+// Login ke bot Discord
 client.login(process.env.TOKEN);
