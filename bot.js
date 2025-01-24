@@ -1,6 +1,7 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder } = require('discord.js');
 const { createCanvas, loadImage, registerFont } = require('canvas');
 const path = require('path');
+const express = require('express');
 require('dotenv').config();
 
 // Path font kustom
@@ -150,7 +151,7 @@ client.on('interactionCreate', async (interaction) => {
         const createdAt = new Date().toLocaleDateString('id-ID');
 
         try {
-            const templateUrl = 'https://i.imgur.com/rU6Gjvj.png'; // URL template
+            const templateUrl = 'https://i.imgur.com/7tUb9dL.png'; // URL template
             const idCardBuffer = await createIDCard({
                 templateUrl,
                 avatarUrl,
@@ -173,6 +174,18 @@ client.on('interactionCreate', async (interaction) => {
             console.error('Error processing ID card:', error);
         }
     }
+});
+
+// Express server untuk port
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+    res.send('Bot is running!');
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
 
 client.login(process.env.TOKEN);
