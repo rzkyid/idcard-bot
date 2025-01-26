@@ -52,7 +52,7 @@ try {
     drawText(ctx, `Domisili: ${domisili}`, 30, 170, { font: '18px Arial', color: '#000000' });
     drawText(ctx, `Agama: ${agama}`, 30, 200, { font: '18px Arial', color: '#000000' });
     drawText(ctx, `Hobi: ${hobi}`, 30, 230, { font: '18px Arial', color: '#000000' });
-    drawText(ctx, `Tanggal: ${createdAt}`, 340, 230, { font: '12px Arial', color: '#000000' });
+    drawText(ctx, `Tanggal Pembuatan:\n${createdAt}`, 340, 230, { font: '12px Arial', color: '#000000' });
 
     return canvas.toBuffer('image/png');
 } catch (error) {
