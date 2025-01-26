@@ -1,4 +1,8 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder } = require('discord.js'); const { createCanvas, loadImage } = require('canvas'); const express = require('express'); require('dotenv').config();
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, 
+       ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder } = require('discord.js'); 
+const { createCanvas, loadImage } = require('canvas'); 
+const express = require('express'); 
+require('dotenv').config();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
