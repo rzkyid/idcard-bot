@@ -43,7 +43,7 @@ try {
     ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
     // Gambar avatar
-    ctx.drawImage(avatar, 330, 90, 120, 120); // Posisi avatar
+    ctx.drawImage(avatar, 330, 80, 120, 140); // Posisi avatar
 
     // Gambar teks
     drawText(ctx, `Nomor KTP: ${userId}`, 30, 80, { font: '18px Arial', color: '#000000' });
