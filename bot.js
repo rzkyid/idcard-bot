@@ -4,7 +4,9 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 
 client.once('ready', () => { console.log(`Bot is online as ${client.user.tag}`); });
 
-// Fungsi untuk menggambar teks function drawText(ctx, text, x, y, options = {}) { const { font = '18px Arial', color = '#000000', align = 'left' } = options;
+// Fungsi untuk menggambar teks 
+
+function drawText(ctx, text, x, y, options = {}) { const { font = '18px Arial', color = '#000000', align = 'left' } = options;
 
 ctx.save(); // Simpan state
 ctx.font = font;
@@ -25,8 +27,9 @@ ctx.restore(); // Kembalikan state
 
 }
 
-// Fungsi untuk menggambar ID Card async function createIDCard(data) { const { templateUrl, avatarUrl, nama, gender, domisili, agama, hobi, userId, createdAt } = data;
+// Fungsi untuk menggambar ID Card 
 
+async function createIDCard(data) { const { templateUrl, avatarUrl, nama, gender, domisili, agama, hobi, userId, createdAt } = data;
 
 const canvas = createCanvas(480, 270); // Ukuran canvas 480 x 270 px
 const ctx = canvas.getContext('2d');
@@ -158,7 +161,9 @@ if (interaction.isModalSubmit() && interaction.customId === 'ktp_form') {
 
 });
 
-// Express server untuk port const app = express(); const PORT = process.env.PORT || 3000;
+// Express server untuk port 
+
+const app = express(); const PORT = process.env.PORT || 3000;
 
 app.get('/', (req, res) => { res.send('Bot is running!'); });
 
