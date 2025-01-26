@@ -20,7 +20,7 @@ client.once('ready', () => {
 
 // Fungsi untuk menggambar teks
 function drawText(ctx, text, x, y, options = {}) {
-    const { font = '28px "Rye"', color = '#FCF4D2', align = 'left' } = options;
+    const { font = '18px "Rye"', color = '#FCF4D2', align = 'left' } = options;
 
     ctx.save(); // Simpan state
     ctx.font = font;
@@ -30,9 +30,9 @@ function drawText(ctx, text, x, y, options = {}) {
 
     // Tambahkan shadow
     ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-    ctx.shadowOffsetX = 3;
-    ctx.shadowOffsetY = 3;
-    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.shadowBlur = 3;
 
     // Gambar teks
     ctx.fillText(text, x, y);
@@ -43,7 +43,7 @@ function drawText(ctx, text, x, y, options = {}) {
 async function createIDCard(data) {
     const { templateUrl, avatarUrl, nama, gender, domisili, agama, hobi, userId, createdAt } = data;
 
-    const canvas = createCanvas(960, 540);
+    const canvas = createCanvas(480, 270); // Ukuran canvas 480 x 270 px
     const ctx = canvas.getContext('2d');
 
     try {
@@ -55,16 +55,16 @@ async function createIDCard(data) {
         ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
         // Gambar avatar
-        ctx.drawImage(avatar, 700, 150, 200, 200); // Posisi avatar
+        ctx.drawImage(avatar, 340, 60, 100, 100); // Posisi avatar
 
         // Gambar teks
-        drawText(ctx, `Nomor KTP: ${userId}`, 50, 50, { font: '28px "Rye"', color: '#000000' });
-        drawText(ctx, `Nama: ${nama}`, 50, 100, { font: '28px "Rye"', color: '#000000' });
-        drawText(ctx, `Jenis Kelamin: ${gender}`, 50, 150, { font: '28px "Rye"', color: '#000000' });
-        drawText(ctx, `Domisili: ${domisili}`, 50, 200, { font: '28px "Rye"', color: '#000000' });
-        drawText(ctx, `Agama: ${agama}`, 50, 250, { font: '28px "Rye"', color: '#000000' });
-        drawText(ctx, `Hobi: ${hobi}`, 50, 300, { font: '28px "Rye"', color: '#000000' });
-        drawText(ctx, `Tanggal Pembuatan: ${createdAt}`, 50, 350, { font: '28px "Rye"', color: '#000000' });
+        drawText(ctx, `Nomor KTP: ${userId}`, 20, 20, { font: '18px "Rye"', color: '#000000' });
+        drawText(ctx, `Nama: ${nama}`, 20, 60, { font: '18px "Rye"', color: '#000000' });
+        drawText(ctx, `Jenis Kelamin: ${gender}`, 20, 100, { font: '18px "Rye"', color: '#000000' });
+        drawText(ctx, `Domisili: ${domisili}`, 20, 140, { font: '18px "Rye"', color: '#000000' });
+        drawText(ctx, `Agama: ${agama}`, 20, 180, { font: '18px "Rye"', color: '#000000' });
+        drawText(ctx, `Hobi: ${hobi}`, 20, 220, { font: '18px "Rye"', color: '#000000' });
+        drawText(ctx, `Tanggal: ${createdAt}`, 20, 260, { font: '12px "Rye"', color: '#000000' });
 
         return canvas.toBuffer('image/png');
     } catch (error) {
@@ -151,7 +151,7 @@ client.on('interactionCreate', async (interaction) => {
         const createdAt = new Date().toLocaleDateString('id-ID');
 
         try {
-            const templateUrl = 'https://i.imgur.com/7tUb9dL.png'; // URL template
+            const templateUrl = 'https://i.imgur.com/9oBMEee.png'; // URL template
             const idCardBuffer = await createIDCard({
                 templateUrl,
                 avatarUrl,
