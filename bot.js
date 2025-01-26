@@ -43,16 +43,16 @@ try {
     ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
 
     // Gambar avatar
-    ctx.drawImage(avatar, 340, 60, 100, 100); // Posisi avatar
+    ctx.drawImage(avatar, 300, 100, 120, 150); // Posisi avatar
 
     // Gambar teks
-    drawText(ctx, `Nomor KTP: ${userId}`, 20, 20, { font: '18px Arial', color: '#FFFFFF' });
-    drawText(ctx, `Nama: ${nama}`, 20, 60, { font: '18px Arial', color: '#000000' });
-    drawText(ctx, `Jenis Kelamin: ${gender}`, 20, 100, { font: '18px Arial', color: '#000000' });
-    drawText(ctx, `Domisili: ${domisili}`, 20, 140, { font: '18px Arial', color: '#000000' });
+    drawText(ctx, `Nomor KTP: ${userId}`, 20, 100, { font: '18px Arial', color: '#000000' });
+    drawText(ctx, `Nama: ${nama}`, 20, 120, { font: '18px Arial', color: '#000000' });
+    drawText(ctx, `Jenis Kelamin: ${gender}`, 20, 140, { font: '18px Arial', color: '#000000' });
+    drawText(ctx, `Domisili: ${domisili}`, 20, 160, { font: '18px Arial', color: '#000000' });
     drawText(ctx, `Agama: ${agama}`, 20, 180, { font: '18px Arial', color: '#000000' });
-    drawText(ctx, `Hobi: ${hobi}`, 20, 220, { font: '18px Arial', color: '#000000' });
-    drawText(ctx, `Tanggal: ${createdAt}`, 20, 260, { font: '12px Arial', color: '#000000' });
+    drawText(ctx, `Hobi: ${hobi}`, 20, 200, { font: '18px Arial', color: '#000000' });
+    drawText(ctx, `Tanggal: ${createdAt}`, 300, 200, { font: '12px Arial', color: '#000000' });
 
     return canvas.toBuffer('image/png');
 } catch (error) {
