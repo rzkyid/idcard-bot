@@ -63,7 +63,10 @@ try {
 
 }
 
-client.on('messageCreate', async (message) => { if (message.content.toLowerCase() === 'rwktp') { const embed = new EmbedBuilder() .setTitle('Buat KTP Virtual') .setDescription('Klik tombol di bawah untuk mengisi formulir dan membuat KTP virtual Anda!') .setColor('#00AAFF');
+client.on('messageCreate', async (message) => { if (message.content.toLowerCase() === 'rwktp') { const embed = new EmbedBuilder() 
+    .setTitle('Buat Kartu Tanda Penduduk Gang Desa') 
+    .setDescription('Klik tombol di bawah untuk mengisi formulir KTP kamu!') 
+    .setColor('#00AAFF');
 
     const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
@@ -78,8 +81,11 @@ client.on('messageCreate', async (message) => { if (message.content.toLowerCase(
 
 });
 
-client.on('interactionCreate', async (interaction) => { if (interaction.isButton() && interaction.customId === 'create\_ktp') { const modal = new ModalBuilder() .setCustomId('ktp\_form') .setTitle('Isi Data KTP Anda');
-
+client.on('interactionCreate', async (interaction) => { 
+    if (interaction.isButton() && interaction.customId === 'create\_ktp') 
+    { const modal = new ModalBuilder() 
+        .setCustomId('ktp\_form') 
+        .setTitle('Isi Data KTP Kamu');
 
     const namaInput = new TextInputBuilder()
         .setCustomId('nama')
@@ -123,7 +129,7 @@ client.on('interactionCreate', async (interaction) => { if (interaction.isButton
 }
 
 if (interaction.isModalSubmit() && interaction.customId === 'ktp_form') {
-    await interaction.reply({ content: 'KTP virtual Anda sedang diproses...', ephemeral: true });
+    await interaction.reply({ content: 'KTP kamu sedang diproses...', ephemeral: true });
 
     const nama = interaction.fields.getTextInputValue('nama');
     const gender = interaction.fields.getTextInputValue('gender');
@@ -151,8 +157,14 @@ if (interaction.isModalSubmit() && interaction.customId === 'ktp_form') {
         const attachment = new AttachmentBuilder(idCardBuffer, { name: 'idcard.png' });
 
         await interaction.followUp({
-            content: `KTP virtual untuk ${interaction.user.tag}`,
-            files: [attachment]
+            content: `Kartu Tanda Penduduk Gang Desa untuk <@${interaction.user.id}>`,
+            files: [attachment],
+            components: [new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                .setCustomId('create_ktp')
+                .setLabel('Buat KTP')
+                .setStyle(ButtonStyle.Primary)
+    )]
         });
     } catch (error) {
         console.error('Error processing ID card:', error);
