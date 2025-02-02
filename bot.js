@@ -1,188 +1,114 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, 
-       ModalBuilder, TextInputBuilder, TextInputStyle, AttachmentBuilder } = require('discord.js'); 
-const { createCanvas, loadImage } = require('canvas'); 
-const express = require('express'); 
-require('dotenv').config();
+require('dotenv').config(); // Load environment variables
+const { Client, GatewayIntentBits } = require('discord.js');
+const axios = require('axios');
+const express = require('express');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
-
-client.once('ready', () => { console.log(`Bot is online as ${client.user.tag}`); });
-
-// Fungsi untuk menggambar teks 
-
-function drawText(ctx, text, x, y, options = {}) { const { font = '18px Arial', color = '#000000', align = 'left' } = options;
-
-ctx.save(); // Simpan state
-ctx.font = font;
-ctx.fillStyle = color;
-ctx.textAlign = align;
-ctx.textBaseline = 'middle';
-
-// Tambahkan shadow
-ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-ctx.shadowOffsetX = 2;
-ctx.shadowOffsetY = 2;
-ctx.shadowBlur = 3;
-
-// Gambar teks
-ctx.fillText(text, x, y);
-ctx.restore(); // Kembalikan state
-
-
-}
-
-// Fungsi untuk menggambar ID Card 
-
-async function createIDCard(data) { const { templateUrl, avatarUrl, nama, gender, domisili, agama, hobi, userId, createdAt } = data;
-
-const canvas = createCanvas(480, 270); // Ukuran canvas 480 x 270 px
-const ctx = canvas.getContext('2d');
-
-try {
-    // Load template dan avatar
-    const template = await loadImage(templateUrl);
-    const avatar = await loadImage(avatarUrl);
-
-    // Gambar template
-    ctx.drawImage(template, 0, 0, canvas.width, canvas.height);
-
-    // Gambar avatar
-    ctx.drawImage(avatar, 330, 70, 120, 140); // Posisi avatar
-
-    // Gambar teks
-    drawText(ctx, `Nomor KTP: ${userId}`, 30, 80, { font: '18px Arial', color: '#000000' });
-    drawText(ctx, `Nama: ${nama}`, 30, 110, { font: '18px Arial', color: '#000000' });
-    drawText(ctx, `Jenis Kelamin: ${gender}`, 30, 140, { font: '18px Arial', color: '#000000' });
-    drawText(ctx, `Domisili: ${domisili}`, 30, 170, { font: '18px Arial', color: '#000000' });
-    drawText(ctx, `Agama: ${agama}`, 30, 200, { font: '18px Arial', color: '#000000' });
-    drawText(ctx, `Hobi: ${hobi}`, 30, 230, { font: '18px Arial', color: '#000000' });
-    drawText(ctx, `Tanggal Pembuatan:\n${createdAt}`, 340, 230, { font: '12px Arial', color: '#000000' });
-
-    return canvas.toBuffer('image/png');
-} catch (error) {
-    console.error('Error creating ID card:', error);
-    throw error;
-}
-
-
-}
-
-client.on('messageCreate', async (message) => { if (message.content.toLowerCase() === 'rwktp') { const embed = new EmbedBuilder() 
-    .setTitle('Buat Kartu Tanda Penduduk Gang Desa') 
-    .setDescription('Klik tombol di bawah untuk mengisi formulir KTP kamu!') 
-    .setColor('#00AAFF');
-
-    const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-            .setCustomId('create_ktp')
-            .setLabel('Buat KTP')
-            .setStyle(ButtonStyle.Primary)
-    );
-
-    await message.reply({ embeds: [embed], components: [row] });
-}
-
-
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+    ],
 });
 
-client.on('interactionCreate', async (interaction) => { 
-    if (interaction.isButton() && interaction.customId === 'create\_ktp') 
-    { const modal = new ModalBuilder() 
-        .setCustomId('ktp\_form') 
-        .setTitle('Isi Data KTP Kamu');
+const PREFIX = '!'; // Prefix untuk perintah bot
 
-    const namaInput = new TextInputBuilder()
-        .setCustomId('nama')
-        .setLabel('Nama Lengkap')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true);
+// Fungsi untuk delay
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const genderInput = new TextInputBuilder()
-        .setCustomId('gender')
-        .setLabel('Jenis Kelamin (L/P)')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true);
+// Fungsi untuk mencoba kembali dengan retry (Exponential backoff)
+const makeRequestWithRetry = async (query) => {
+    const MAX_RETRIES = 5; // Maksimal percobaan ulang
+    const RETRY_DELAY = 5000; // Delay awal 5 detik
 
-    const domisiliInput = new TextInputBuilder()
-        .setCustomId('domisili')
-        .setLabel('Domisili')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true);
+    let attempts = 0;
+    while (attempts < MAX_RETRIES) {
+        try {
+            // Melakukan request ke Gemini API
+            const response = await axios.post(
+                "https://generativelanguage.googleapis.com/v1beta/chat/completions",
+                {
+                    model: 'gemini-1.5-flash',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: 'Kamu berperan sebagai asisten discord yang dapat menjawab setiap pertanyaan',
+                        },
+                        {
+                            role: 'user',
+                            content: query,
+                        },
+                    ],
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${process.env.GEMINI_API_KEY}`,
+                    },
+                }
+            );
 
-    const agamaInput = new TextInputBuilder()
-        .setCustomId('agama')
-        .setLabel('Agama')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true);
+            // Mengambil respons dari Gemini
+            const reply = response.data.choices[0].message.content.trim();
+            return reply;
+        } catch (error) {
+            if (error.response && error.response.status === 429) {
+                attempts++;
+                console.log(`Terlalu banyak permintaan, mencoba lagi setelah ${RETRY_DELAY * attempts} ms...`);
+                await delay(RETRY_DELAY * attempts); // Exponential backoff
+            } else {
+                console.error("Error saat mengakses Gemini API:", error.message);
+                throw error;
+            }
+        }
+    }
+    throw new Error('Coba lagi setelah beberapa saat, batas maksimum pencobaan tercapai.');
+};
 
-    const hobiInput = new TextInputBuilder()
-        .setCustomId('hobi')
-        .setLabel('Hobi')
-        .setStyle(TextInputStyle.Short)
-        .setRequired(true);
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+    
+    const userMessage = message.content.trim();
+    console.log(`Pesan dari ${message.author.tag}: ${userMessage}`);
 
-    modal.addComponents(
-        new ActionRowBuilder().addComponents(namaInput),
-        new ActionRowBuilder().addComponents(genderInput),
-        new ActionRowBuilder().addComponents(domisiliInput),
-        new ActionRowBuilder().addComponents(agamaInput),
-        new ActionRowBuilder().addComponents(hobiInput)
-    );
+    // Perintah untuk bot tanya jawab
+    if (message.content.startsWith(`${PREFIX}tanya`)) {
+        const query = message.content.slice(`${PREFIX}tanya`.length).trim();
+        if (!query) {
+            message.reply('Tanyain aja, nanti saya jawab'); 
+            return;
+        }
 
-    await interaction.showModal(modal);
-}
-
-if (interaction.isModalSubmit() && interaction.customId === 'ktp_form') {
-    await interaction.reply({ content: 'KTP kamu sedang diproses...', ephemeral: true });
-
-    const nama = interaction.fields.getTextInputValue('nama');
-    const gender = interaction.fields.getTextInputValue('gender');
-    const domisili = interaction.fields.getTextInputValue('domisili');
-    const agama = interaction.fields.getTextInputValue('agama');
-    const hobi = interaction.fields.getTextInputValue('hobi');
-    const userId = interaction.user.id;
-    const avatarUrl = interaction.user.displayAvatarURL({ size: 256, extension: 'png' });
-    const createdAt = new Date().toLocaleDateString('id-ID');
+        try {
+            const reply = await makeRequestWithRetry(query); // Menggunakan fungsi retry
+            message.reply(reply); // Mengirimkan jawaban ke pengguna
+        } catch (error) {
+            console.error('Error with Gemini API:', error);
+            message.reply('Maaf, saya lagi bingung nih sama pertanyaannya'); 
+        }
+        return;
+    }
 
     try {
-        const templateUrl = 'https://i.imgur.com/rU6Gjvj.png'; // URL template
-        const idCardBuffer = await createIDCard({
-            templateUrl,
-            avatarUrl,
-            nama,
-            gender,
-            domisili,
-            agama,
-            hobi,
-            userId,
-            createdAt
-        });
-
-        const attachment = new AttachmentBuilder(idCardBuffer, { name: 'idcard.png' });
-
-        await interaction.followUp({
-            content: `Kartu Tanda Penduduk Gang Desa untuk <@${interaction.user.id}>`,
-            files: [attachment],
-            components: [new ActionRowBuilder().addComponents(
-                new ButtonBuilder()
-                .setCustomId('create_ktp')
-                .setLabel('Buat KTP')
-                .setStyle(ButtonStyle.Primary)
-    )]
-        });
+        const reply = await makeRequestWithRetry(userMessage);
+        await message.reply(reply);
     } catch (error) {
-        console.error('Error processing ID card:', error);
+        await message.reply('Maaf, terjadi kesalahan saat mencoba mendapatkan jawaban.');
     }
-}
-
 });
 
-// Express server untuk port 
-
-const app = express(); const PORT = process.env.PORT || 3000;
-
-app.get('/', (req, res) => { res.send('Bot is running!'); });
-
-app.listen(PORT, () => { console.log(`Server is running on port ${PORT}`); });
+client.once('ready', () => {
+    console.log(`Bot ${client.user.tag} sudah online!`);
+});
 
 client.login(process.env.TOKEN);
+
+// Menjalankan server Express untuk menjaga bot tetap hidup
+const app = express();
+const PORT = process.env.PORT || 3000;
+app.get('/', (req, res) => {
+    res.send('Bot is running!');
+});
+app.listen(PORT, () => {
+    console.log(`Server berjalan di port ${PORT}`);
+});
