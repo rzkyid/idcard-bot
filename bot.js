@@ -11,7 +11,7 @@ const client = new Client({
     ],
 });
 
-const ALLOWED_CHANNELS = ["1313095157477802034"]; // Ganti dengan ID channel yang diizinkan
+const ALLOWED_CHANNELS = ["123456789012345678"]; // Ganti dengan ID channel yang diizinkan
 
 // Fungsi untuk delay
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -71,25 +71,15 @@ client.on('messageCreate', async (message) => {
     // Hanya merespon di channel tertentu
     if (!ALLOWED_CHANNELS.includes(message.channel.id)) return;
 
-    const userMessage = message.content.trim();
-    console.log(`Pesan dari ${message.author.tag} di ${message.channel.name}: ${userMessage}`);
+    const query = message.content.trim();
+    console.log(`Pesan dari ${message.author.tag} di ${message.channel.name}: ${query}`);
 
-    // Perintah untuk bot tanya jawab
-    if (userMessage.startsWith('tanya')) {
-        const query = userMessage.slice(5).trim();
-        if (!query) {
-            message.reply('Tanyain aja, nanti saya jawab'); 
-            return;
-        }
-
-        try {
-            const reply = await makeRequestWithRetry(query); // Menggunakan fungsi retry
-            message.reply(reply); // Mengirimkan jawaban ke pengguna
-        } catch (error) {
-            console.error('Error with Gemini API:', error);
-            message.reply('Maaf, saya lagi bingung nih sama pertanyaannya'); 
-        }
-        return;
+    try {
+        const reply = await makeRequestWithRetry(query); // Menggunakan fungsi retry
+        message.reply(reply); // Mengirimkan jawaban ke pengguna
+    } catch (error) {
+        console.error('Error with Gemini API:', error);
+        message.reply('Maaf, saya lagi bingung nih sama pertanyaannya'); 
     }
 });
 
