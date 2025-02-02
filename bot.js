@@ -11,7 +11,7 @@ const client = new Client({
     ],
 });
 
-const PREFIX = '!'; // Prefix untuk perintah bot
+const ALLOWED_CHANNELS = ["1313095157477802034"]; // Ganti dengan ID channel yang diizinkan
 
 // Fungsi untuk delay
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -68,15 +68,15 @@ const makeRequestWithRetry = async (query) => {
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     
-    const userMessage = message.content.trim();
-    console.log(`Pesan dari ${message.author.tag}: ${userMessage}`);
+    // Hanya merespon di channel tertentu
+    if (!ALLOWED_CHANNELS.includes(message.channel.id)) return;
 
-    // Abaikan pesan yang tidak menggunakan prefix
-    if (!userMessage.startsWith(PREFIX)) return;
+    const userMessage = message.content.trim();
+    console.log(`Pesan dari ${message.author.tag} di ${message.channel.name}: ${userMessage}`);
 
     // Perintah untuk bot tanya jawab
-    if (message.content.startsWith(`${PREFIX}tanya`)) {
-        const query = message.content.slice(`${PREFIX}tanya`.length).trim();
+    if (userMessage.startsWith('tanya')) {
+        const query = userMessage.slice(5).trim();
         if (!query) {
             message.reply('Tanyain aja, nanti saya jawab'); 
             return;
