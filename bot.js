@@ -71,6 +71,9 @@ client.on('messageCreate', async (message) => {
     const userMessage = message.content.trim();
     console.log(`Pesan dari ${message.author.tag}: ${userMessage}`);
 
+    // Abaikan pesan yang tidak menggunakan prefix
+    if (!userMessage.startsWith(PREFIX)) return;
+
     // Perintah untuk bot tanya jawab
     if (message.content.startsWith(`${PREFIX}tanya`)) {
         const query = message.content.slice(`${PREFIX}tanya`.length).trim();
@@ -87,13 +90,6 @@ client.on('messageCreate', async (message) => {
             message.reply('Maaf, saya lagi bingung nih sama pertanyaannya'); 
         }
         return;
-    }
-
-    try {
-        const reply = await makeRequestWithRetry(userMessage);
-        await message.reply(reply);
-    } catch (error) {
-        await message.reply('Maaf, terjadi kesalahan saat mencoba mendapatkan jawaban.');
     }
 });
 
